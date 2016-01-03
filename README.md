@@ -17,8 +17,10 @@ module.exports = require('jquery');
 ```
 
 You can build bundle and main like this:
-    browserify demo/main/main.js -o demo/dist/main.js -t [browserify-async-define -d jquery:jquery]
-    browserify demo/bundle/bundle.js -o demo/dist/bundle.js -t [browserify-async-define -e demo/bundle.js:jquery]
+```
+browserify demo/main/main.js -o demo/dist/main.js -t [browserify-async-define -d jquery:jquery]
+browserify demo/bundle/bundle.js -o demo/dist/bundle.js -t [browserify-async-define -e demo/bundle.js:jquery]
+```
 
 and then load them like this:
 ```html
