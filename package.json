@@ -1,0 +1,31 @@
+{
+  "name": "browserify-async-define",
+  "version": "0.0.1",
+  "description": "Browserify transformer for async-define",
+  "main": "index.js",
+  "scripts": {
+    "build-main": "browserify demo/main/main.js -o demo/dist/main.js -t [./index.js -d jquery -d React:react -d ReactDOM:react-dom]",
+    "build-bundle": "browserify demo/bundle/bundle.js -o demo/dist/bundle.js -t [./index.js -e demo/bundle/jquery.js:jquery -e demo/bundle/react.js:react -e demo/bundle/react-dom.js:react-dom]",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "http-server -p 9090 demo"
+  },
+  "keywords": [],
+  "author": "Maurizio Lupo <maurizio.lupo@gmail.com>",
+  "license": "MIT",
+  "repository": "git@github.com:tes/browserify-async-define.git",
+  "devDependencies": {
+    "browserify": "^12.0.1",
+    "http-server": "^0.8.5",
+    "jquery": "^2.1.4",
+    "react": "^0.14.5",
+    "react-dom": "^0.14.5"
+  },
+  "peerDependencies":{
+    "async-define": "^1.0.0",
+  },
+  "dependencies": {
+    "async-define": "^1.0.0",
+    "browserify-transform-tools": "^1.5.0",
+    "falafel": "^1.2.0"
+  }
+}
