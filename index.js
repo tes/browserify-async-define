@@ -4,6 +4,7 @@ var transformTools = require('browserify-transform-tools');
 var browserify = require('browserify');
 var temp = require('temp');
 var fs = require('fs');
+var mkdirp = require('mkdirp');
 
 temp.track(); // remove temp files
 
@@ -122,14 +123,6 @@ function bundlesToVirtualFiles(b, callback){
   });
 }
 
-function invertMap(o){
-  var out = {};
-  for (var k in o){
-    out[o[k]] = k;
-  }
-  return out;
-}
-
 function arrayfy(arg){
   return typeof arg === "string" ? [arg] : arg;
 }
@@ -149,7 +142,6 @@ var stringTransform = transformTools.makeStringTransform("browserify-async-defin
     var exports = getExports(array2obj(o.exports));
     var depsObj = array2obj(o.dependsOn);
     var deps = getDeps(depsObj);
-    var labels = invertMap(depsObj);
     var file = transformOptions.file;
 
     var newContent = (deps.deps.length > 0 || file in exports) ? wrap(exports, deps, exports[file], content) : content
@@ -185,6 +177,7 @@ var stringTransform = transformTools.makeStringTransform("browserify-async-defin
       var files = fileMap2Bundles(fileMap);
       bundlesToVirtualFiles(files, function (f, bundlePath){
         var b = browserify(f, {basedir: process.cwd(), paths: ['./node_modules']});
+        mkdirp.sync(path.dirname(bundlePath));
         b.bundle().pipe(fs.createWriteStream(bundlePath));
       });
     });
