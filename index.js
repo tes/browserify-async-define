@@ -113,12 +113,17 @@ function fileMap2Bundles(m){
 function bundlesToVirtualFiles(b, callback){
   b.forEach(function (bundle){
     temp.open('myprefix', function(err, info) {
-      if (!err) {
-        fs.write(info.fd, bundle[1]);
-        fs.close(info.fd, function(err) {
-          callback(info.path, bundle[0]);
-        });
+      if (err) {
+        return callback(err);
       }
+      fs.write(info.fd, bundle[1], function (err){
+        if (err) {
+          return callback(err);
+        }
+        fs.close(info.fd, function(err) {
+          callback(null, info.path, bundle[0]);
+        });          
+      });
     });        
   });
 }
@@ -175,7 +180,11 @@ var stringTransform = transformTools.makeStringTransform("browserify-async-defin
       var depsTuples = strArray2tuples(o.dependsOn);
       var fileMap = getFileMap(depsTuples);
       var files = fileMap2Bundles(fileMap);
-      bundlesToVirtualFiles(files, function (f, bundlePath){
+      bundlesToVirtualFiles(files, function (err, f, bundlePath){
+        if (err) {
+          console.log(err);
+          return;
+        }
         var b = browserify(f, {basedir: process.cwd(), paths: ['./node_modules']});
         mkdirp.sync(path.dirname(bundlePath));
         b.bundle().pipe(fs.createWriteStream(bundlePath));
