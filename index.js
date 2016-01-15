@@ -3,7 +3,7 @@ var browserify = require('browserify');
 var temp = require('temp');
 var fs = require('fs');
 var mkdirp = require('mkdirp');
-var browserifyAsyncDefineTransformer = require('./transformer');
+var transformer = require('./transformer');
 var utils = require('./utilities');
 var quote = utils.quote;
 var mangleName = utils.mangleName;
@@ -124,16 +124,29 @@ module.exports = function (b, opts) {
   var exports = getExports(array2obj(o.exports));
   var depsObj = array2obj(o.dependsOn);
   var deps = getDeps(depsObj);
+
+  var removedDependencies = {};
+  var removedDependenciesOnCurrentFile = {};
   
-  b.transform(browserifyAsyncDefineTransformer, {
+  b.transform(transformer.requireTransform, {
     verbose: !!opts.verbose,
-    exports: exports,
     depsObj: depsObj,
-    deps: deps
+    removedDependencies: removedDependencies,
+    removedDependenciesOnCurrentFile: removedDependenciesOnCurrentFile
+  });
+
+  b.transform(transformer.wrapTransform, {
+    exports: exports,
+    deps: deps,
+    removedDependencies: removedDependencies,
+    removedDependenciesOnCurrentFile: removedDependenciesOnCurrentFile
   });
 
   b.pipeline.on('end', function (){
     var depsTuples = strArray2tuples(o.dependsOn);
+    console.log('End ---------------')
+    console.log(depsTuples)
+    console.log(removedDependencies)
     var fileMap = getFileMap(depsTuples);
     var files = fileMap2Bundles(fileMap);
     bundlesToVirtualFiles(files, function (err, f, bundlePath){

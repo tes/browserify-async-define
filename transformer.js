@@ -1,5 +1,4 @@
 var path = require('path');
-var falafel = require('falafel');
 var transformTools = require('browserify-transform-tools');
 var utils = require('./utilities');
 var quote = utils.quote;
@@ -20,46 +19,61 @@ function wrap(exports, deps, sym, body){
   return out.join("\n");
 }
 
+function enrichDeps (deps, removedDependencies){
+  var additional = Object.keys(removedDependencies);
+
+  var additionalDeps = additional.map(function (key){
+    key.slice(removedDependencies[key].length)
+    return removedDependencies[key].label + key.slice(removedDependencies[key].name.length);
+  });
+
+  var additionalArgs = additional.map(function (key){
+    return mangleName(key);
+  });
+
+  return {
+    deps: deps.deps.concat(additionalDeps),
+    args: deps.args.concat(additionalArgs)
+  }
+}
+
 var options = {excludeExtensions: [".json"]};
-var stringTransform = transformTools.makeStringTransform("browserify-async-define", options,
+var wrapTransform = transformTools.makeStringTransform("browserify-async-define-1", options,
   function (content, transformOptions, done) {
     var o = transformOptions.config;
     var exports = o.exports;
-    var depsObj = o.depsObj;
-    var deps = o.deps;
 
+    var deps = enrichDeps(o.deps, o.removedDependenciesOnCurrentFile);
+    delete o.removedDependenciesOnCurrentFile;
     var file = transformOptions.file;
 
-    var newContent = (deps.deps.length > 0 || file in exports) ? wrap(exports, deps, exports[file], content) : content
-    var output = falafel(newContent, function (node) {
-      if (node.type === 'CallExpression' && node.callee.type === 'Identifier' && node.callee.name === 'require'){
-        var dirname = path.dirname(transformOptions.file);
-        var varNames = ['__filename', '__dirname', 'path', 'join'];
-        var vars = [transformOptions.file, dirname, path, path.join];
-        var args = node.arguments.map(function (arg){
-          var t = "return " + arg.source();
-          try {
-            return Function(varNames, t).apply(null, vars)
-          }
-          catch (err){
-            // Can't evaluate the arguments.  Return the raw source.
-            return arg.source()                
-          }
-        });
-        
-        var first_segment = args[0].split('/')[0];
-        
-        if (first_segment in depsObj){
-          transformOptions.config.verbose && console.log('factored out: ', args[0]);
-          node.update(mangleName(args[0]));
-        }
-        else {
-          transformOptions.config.verbose && console.log('left in: ', args[0]);
-        }
-      }
-    });
+    var output = (deps.deps.length > 0 || file in exports) ? wrap(exports, deps, exports[file], content) : content
 
     done(null, output);
 });
 
-module.exports = stringTransform;
+var requireTransform = transformTools.makeRequireTransform("browserify-async-define-2", 
+  {evaluateArguments: true},
+  function(args, transformOptions, done) {
+    var o = transformOptions.config;
+    var depsObj = o.depsObj;
+    var first_segment = args[0].split('/')[0];
+
+    if (first_segment in depsObj){
+      transformOptions.config.verbose && console.log('factored out: ', args[0]);
+      if (first_segment !== args[0]){
+        o.removedDependencies[args[0]] = {label: depsObj[first_segment], name: first_segment};
+        o.removedDependenciesOnCurrentFile[args[0]] = {label: depsObj[first_segment], name: first_segment};
+      }
+      return done(null, mangleName(args[0]));
+    }
+    else {
+      transformOptions.config.verbose && console.log('left in: ', args[0]);
+      return done();
+    }
+});
+
+module.exports = {
+  wrapTransform: wrapTransform,
+  requireTransform: requireTransform
+};
