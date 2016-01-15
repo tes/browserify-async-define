@@ -4,7 +4,8 @@
   "description": "Browserify transformer for async-define",
   "main": "index.js",
   "scripts": {
-    "build-main": "browserify demo/main/main.js -o demo/dist/main.js -t [./index.js -d jquery:jquery20:demo/dist/jquery.js -d react:react014:demo/dist/react.js -d react-dom:reactDom014:demo/dist/react.js]",
+    "build-main": "browserify demo/main/main.js -o demo/dist/main.js -p [./plugin.js -d jquery:jquery20:demo/dist/jquery.js -d react:react014:demo/dist/react.js -d react-dom:reactDom014:demo/dist/react.js]",
+    "build-main-old": "browserify demo/main/main.js -o demo/dist/main.js -t [./index.js -d jquery:jquery20:demo/dist/jquery.js -d react:react014:demo/dist/react.js -d react-dom:reactDom014:demo/dist/react.js]",
     "build-bundle": "browserify demo/bundle/jquery.js -o demo/dist/jquerytest.js -t [./index.js -e demo/bundle/jquery.js:jquery]",
     "test": "echo \"Error: no test specified\" && exit 1",
     "serve": "http-server -p 9090 demo"
