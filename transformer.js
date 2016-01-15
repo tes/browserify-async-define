@@ -1,14 +1,9 @@
 var path = require('path');
 var falafel = require('falafel');
 var transformTools = require('browserify-transform-tools');
-
-function mangleName(n){
-  return "__" + n.replace(/[\-./.]/g, '_');
-}
-
-function quote(item){
-  return '"' + item + '"';
-}
+var utils = require('./utilities');
+var quote = utils.quote;
+var mangleName = utils.mangleName;
 
 function wrap(exports, deps, sym, body){
   var d = '[' + deps.deps.map(quote).join(',') + '],';

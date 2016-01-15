@@ -1,16 +1,14 @@
 var path = require('path');
-var falafel = require('falafel');
-var transformTools = require('browserify-transform-tools');
 var browserify = require('browserify');
 var temp = require('temp');
 var fs = require('fs');
 var mkdirp = require('mkdirp');
+var browserifyAsyncDefineTransformer = require('./transformer');
+var utils = require('./utilities');
+var quote = utils.quote;
+var mangleName = utils.mangleName;
 
 temp.track(); // remove temp files
-
-function mangleName(n){
-  return "__" + n.replace(/[\-./.]/g, '_');
-}
 
 function getDeps(dependsOn){
   var names = Object.keys(dependsOn);
@@ -31,25 +29,6 @@ function getExports(exports){
       previous[current[0]] = current[1];
       return previous;  
     }, {});
-}
-
-function quote(item){
-  return '"' + item + '"';
-}
-
-function wrap(exports, deps, sym, body){
-  var d = '[' + deps.deps.map(quote).join(',') + '],';
-  var a = deps.args.join(',');
-  var s = sym ? quote(sym) + "," : "";
-  var out = ["var asyncDefine = require('async-define');"];
-  out.push("asyncDefine(" + s + d + "function (" + a + "){" );
-  out.push(body);
-  if (sym){  
-    out.push("return module.exports;");
-  }
-  out.push("});");
-
-  return out.join("\n");
 }
 
 function strArray2tuples(a) {
@@ -140,65 +119,31 @@ function getOptions(o) {
   return out;
 }
 
-var options = {excludeExtensions: [".json"]};
-var stringTransform = transformTools.makeStringTransform("browserify-async-define", options,
-  function (content, transformOptions, done) {
-    var o = getOptions(transformOptions.config);
-    var exports = getExports(array2obj(o.exports));
-    var depsObj = array2obj(o.dependsOn);
-    var deps = getDeps(depsObj);
-    var file = transformOptions.file;
+module.exports = function (b, opts) {
+  var o = getOptions(opts);
+  var exports = getExports(array2obj(o.exports));
+  var depsObj = array2obj(o.dependsOn);
+  var deps = getDeps(depsObj);
+  
+  b.transform(browserifyAsyncDefineTransformer, {
+    verbose: !!opts.verbose,
+    exports: exports,
+    depsObj: depsObj,
+    deps: deps
+  });
 
-    var newContent = (deps.deps.length > 0 || file in exports) ? wrap(exports, deps, exports[file], content) : content
-    var output = falafel(newContent, function (node) {
-      if (node.type === 'CallExpression' && node.callee.type === 'Identifier' && node.callee.name === 'require'){
-        var dirname = path.dirname(transformOptions.file);
-        var varNames = ['__filename', '__dirname', 'path', 'join'];
-        var vars = [transformOptions.file, dirname, path, path.join];
-        var args = node.arguments.map(function (arg){
-          var t = "return " + arg.source();
-          try {
-            return Function(varNames, t).apply(null, vars)
-          }
-          catch (err){
-            // Can't evaluate the arguments.  Return the raw source.
-            return arg.source()                
-          }
-        });
-        
-        var first_segment = args[0].split('/')[0];
-        
-        if (first_segment in depsObj){
-          transformOptions.config.verbose && console.log('factored out: ', args[0]);
-          node.update(mangleName(args[0]));
-        }
-        else {
-          transformOptions.config.verbose && console.log('left in: ', args[0]);
-        }
+  b.pipeline.on('end', function (){
+    var depsTuples = strArray2tuples(o.dependsOn);
+    var fileMap = getFileMap(depsTuples);
+    var files = fileMap2Bundles(fileMap);
+    bundlesToVirtualFiles(files, function (err, f, bundlePath){
+      if (err) {
+        console.log(err);
+        return;
       }
+      var b = browserify(f, {basedir: process.cwd(), paths: ['./node_modules']});
+      mkdirp.sync(path.dirname(bundlePath));
+      b.bundle().pipe(fs.createWriteStream(bundlePath));
     });
-// console.log(this)
-    // this.on('close', function() {
-    //   console.log('finish')
-    // });
-    this.on('end', function() {
-      // console.log('end')
-      var o = getOptions(transformOptions.config);
-      var depsTuples = strArray2tuples(o.dependsOn);
-      var fileMap = getFileMap(depsTuples);
-      var files = fileMap2Bundles(fileMap);
-      bundlesToVirtualFiles(files, function (err, f, bundlePath){
-        if (err) {
-          console.log(err);
-          return;
-        }
-        var b = browserify(f, {basedir: process.cwd(), paths: ['./node_modules']});
-        mkdirp.sync(path.dirname(bundlePath));
-        b.bundle().pipe(fs.createWriteStream(bundlePath));
-      });
-    });
-
-    done(null, output);
-});
-
-module.exports = stringTransform;
+  });
+}
