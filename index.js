@@ -145,8 +145,21 @@ module.exports = function (b, opts) {
   b.pipeline.on('end', function (){
     var depsTuples = strArray2tuples(o.dependsOn);
     console.log('End ---------------')
-    console.log(depsTuples)
-    console.log(removedDependencies)
+    var fileLookupTable = depsTuples.map(function (t){
+      return [t[0], t[2]];
+    })
+    .reduce(function (obj, value){
+      obj[value[0]] = value[1];
+      return obj;
+    }, {});
+    
+    var additional = Object.keys(removedDependencies).map(function (key){
+      return [key, 
+        removedDependencies[key].label + key.slice(removedDependencies[key].name.length),
+        fileLookupTable[removedDependencies[key].name]]
+    });
+    depsTuples = depsTuples.concat(additional);
+    // console.log(depsTuples)
     var fileMap = getFileMap(depsTuples);
     var files = fileMap2Bundles(fileMap);
     bundlesToVirtualFiles(files, function (err, f, bundlePath){
