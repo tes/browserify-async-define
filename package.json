@@ -1,7 +1,7 @@
 {
   "name": "browserify-async-define",
-  "version": "1.0.0",
-  "description": "Browserify transformer for async-define",
+  "version": "2.0.0",
+  "description": "Browserify plugin for async-define",
   "main": "index.js",
   "scripts": {
     "build-main": "browserify demo/main/main.js -o demo/dist/main.js -p [./index.js -d jquery:jquery20:demo/dist/jquery.js -d react:react014:demo/dist/react.js -d react-dom:reactDom014:demo/dist/react.js]",
