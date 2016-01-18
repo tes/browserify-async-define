@@ -142,9 +142,8 @@ module.exports = function (b, opts) {
     removedDependenciesOnCurrentFile: removedDependenciesOnCurrentFile
   });
 
-  b.pipeline.on('end', function (){
+  var onEnd = function (){
     var depsTuples = strArray2tuples(o.dependsOn);
-    console.log('End ---------------')
     var fileLookupTable = depsTuples.map(function (t){
       return [t[0], t[2]];
     })
@@ -159,9 +158,21 @@ module.exports = function (b, opts) {
         fileLookupTable[removedDependencies[key].name]]
     });
     depsTuples = depsTuples.concat(additional);
-    // console.log(depsTuples)
     var fileMap = getFileMap(depsTuples);
     var files = fileMap2Bundles(fileMap);
+
+    if (opts.verbose) {
+      console.log('')
+      console.log('Building Common bundles:')
+      Object.keys(fileMap).forEach(f => {
+        console.log('')
+        console.log(`File: ${f}`);
+        fileMap[f].forEach( t => {
+          console.log(`* Dep: ${t[0]} - Label: ${t[1]}`);
+        });
+      });
+    }
+
     bundlesToVirtualFiles(files, function (err, f, bundlePath){
       if (err) {
         console.log(err);
@@ -171,5 +182,7 @@ module.exports = function (b, opts) {
       mkdirp.sync(path.dirname(bundlePath));
       b.bundle().pipe(fs.createWriteStream(bundlePath));
     });
-  });
+  };
+  
+  b.pipeline.on('end', onEnd);
 }

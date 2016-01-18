@@ -1,6 +1,6 @@
 browserify-async-define
 =======================
-This browserify transformer can be used to wrap some dependencies using async-define and thus, factor out those in common bundles.
+This browserify plugin can be used to wrap some dependencies using async-define and thus, factor out those in common bundles.
 
 Options:
 *  -d --dependsOn "name:label:filename" the dependency "name" will come from a different bundle with the label "label". If you add "filename" (optional) this dependency will be bundled in that file.
@@ -14,7 +14,7 @@ var $node = $('<div>Hello</div>').appendTo(document.body);
 ```
 You can build bundle and main like this:
 ```
-browserify main.js -o dist/main.js -t [browserify-async-define -d jquery:jquery:dist/common.js]
+browserify main.js -o dist/main.js -p [browserify-async-define -d jquery:jquery:dist/common.js]
 ```
 
 and then load them like this:
@@ -25,7 +25,7 @@ and then load them like this:
 
 You can factor out multiple dependencies and use the "label" to express different versions:
 ```
-browserify main.js -o dist/main.js -t [browserify-async-define -d jquery:jquery20:dist/jquery.js -d react:react014:dist/react.js -d react-dom:reactDom014:dist/react.js]
+browserify main.js -o dist/main.js -p [browserify-async-define -d jquery:jquery20:dist/jquery.js -d react:react014:dist/react.js -d react-dom:reactDom014:dist/react.js]
 ```
 and then load them like this:
 ```html
