@@ -1,6 +1,7 @@
 var path = require('path');
 var browserify = require('browserify');
 var temp = require('temp');
+var through = require('through2');
 var fs = require('fs');
 var mkdirp = require('mkdirp');
 var transformer = require('./transformer');
@@ -142,7 +143,7 @@ module.exports = function (b, opts) {
     removedDependenciesOnCurrentFile: removedDependenciesOnCurrentFile
   });
 
-  var onEnd = function (){
+  var onEnd = function (next){
     var depsTuples = strArray2tuples(o.dependsOn);
     var fileLookupTable = depsTuples.map(function (t){
       return [t[0], t[2]];
@@ -172,17 +173,31 @@ module.exports = function (b, opts) {
         });
       });
     }
-
+    
+    var streamNumber = Object.keys(fileMap).length;
+    
     bundlesToVirtualFiles(files, function (err, f, bundlePath){
       if (err) {
         console.log(err);
         return;
       }
       var b = browserify(f, {basedir: process.cwd(), paths: ['./node_modules']});
+      var writableStream = fs.createWriteStream(bundlePath);
       mkdirp.sync(path.dirname(bundlePath));
-      b.bundle().pipe(fs.createWriteStream(bundlePath));
+      b.bundle().pipe(writableStream);
+      writableStream.on('finish', function (){
+        streamNumber--;
+        if (streamNumber === 0){
+          next();
+        }
+      });
     });
   };
-  
-  b.pipeline.on('end', onEnd);
+
+  b.pipeline.get('label').push(through.obj(function(row, enc, next) {
+    next(null, row);
+  }, 
+  function (cb){
+    onEnd(cb);
+  }));
 }
