@@ -125,6 +125,16 @@ module.exports = function (b, opts) {
   var exports = getExports(array2obj(o.exports));
   var depsObj = array2obj(o.dependsOn);
   var deps = getDeps(depsObj);
+  var depsTuples = strArray2tuples(o.dependsOn);
+  var fileLookupTable = depsTuples.map(function (t){
+    return [t[0], t[2]];
+  })
+  .reduce(function (obj, value){
+    if (value[1]) {
+      obj[value[0]] = value[1];      
+    }
+    return obj;
+  }, {});
 
   var removedDependencies = {};
   var removedDependenciesOnCurrentFile = {};
@@ -144,15 +154,6 @@ module.exports = function (b, opts) {
   });
 
   var onEnd = function (next){
-    var depsTuples = strArray2tuples(o.dependsOn);
-    var fileLookupTable = depsTuples.map(function (t){
-      return [t[0], t[2]];
-    })
-    .reduce(function (obj, value){
-      obj[value[0]] = value[1];
-      return obj;
-    }, {});
-    
     var additional = Object.keys(removedDependencies).map(function (key){
       return [key, 
         removedDependencies[key].label + key.slice(removedDependencies[key].name.length),
@@ -198,6 +199,11 @@ module.exports = function (b, opts) {
     next(null, row);
   }, 
   function (cb){
-    onEnd(cb);
+    if (Object.keys(fileLookupTable).length) {
+      onEnd(cb);
+    }
+    else {
+      cb();
+    }
   }));
 }
