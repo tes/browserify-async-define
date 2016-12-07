@@ -28,7 +28,7 @@ function getExports(exports){
     })
     .reduce(function (previous, current){
       previous[current[0]] = current[1];
-      return previous;  
+      return previous;
     }, {});
 }
 
@@ -36,14 +36,14 @@ function strArray2tuples(a) {
   return a.map(function (item){
     var items = item.split(':');
     return items.length >= 2 ? items : [item, item];
-  });  
+  });
 }
 
 function tuples2objects(t) {
   return t.reduce(function (previous, tuple){
     previous[tuple[0]] = tuple[1];
     return previous;
-  }, {});  
+  }, {});
 }
 
 function array2obj(a) {
@@ -73,14 +73,14 @@ function deps2Bundle(d){
     return "var " + mangleName(name) + " = require(" + quote(name) + ");"
   })
   .join('\n');
-  
+
   var defines = d.map(function (t){
     var label = t[1];
     var name = t[0];
     return "asyncDefine(" + quote(label) + ", function(){return " + mangleName(name) + ";});"
   })
   .join('\n');
-  
+
   return ["var asyncDefine = require('async-define');", requires, defines].join('\n');
 }
 
@@ -102,9 +102,9 @@ function bundlesToVirtualFiles(b, callback){
         }
         fs.close(info.fd, function(err) {
           callback(null, info.path, bundle[0]);
-        });          
+        });
       });
-    });        
+    });
   });
 }
 
@@ -131,31 +131,33 @@ module.exports = function (b, opts) {
   })
   .reduce(function (obj, value){
     if (value[1]) {
-      obj[value[0]] = value[1];      
+      obj[value[0]] = value[1];
     }
     return obj;
   }, {});
 
   var removedDependencies = {};
   var removedDependenciesOnCurrentFile = {};
-  
+
   b.transform(transformer.requireTransform, {
     verbose: !!opts.verbose,
     depsObj: depsObj,
     removedDependencies: removedDependencies,
-    removedDependenciesOnCurrentFile: removedDependenciesOnCurrentFile
+    removedDependenciesOnCurrentFile: removedDependenciesOnCurrentFile,
+    global: true
   });
 
   b.transform(transformer.wrapTransform, {
     exports: exports,
     deps: deps,
     removedDependencies: removedDependencies,
-    removedDependenciesOnCurrentFile: removedDependenciesOnCurrentFile
+    removedDependenciesOnCurrentFile: removedDependenciesOnCurrentFile,
+    global: true
   });
 
   var onEnd = function (next){
     var additional = Object.keys(removedDependencies).map(function (key){
-      return [key, 
+      return [key,
         removedDependencies[key].label + key.slice(removedDependencies[key].name.length),
         fileLookupTable[removedDependencies[key].name]]
     });
@@ -174,9 +176,9 @@ module.exports = function (b, opts) {
         });
       });
     }
-    
+
     var streamNumber = Object.keys(fileMap).length;
-    
+
     bundlesToVirtualFiles(files, function (err, f, bundlePath){
       if (err) {
         console.log(err);
@@ -197,7 +199,7 @@ module.exports = function (b, opts) {
 
   b.pipeline.get('label').push(through.obj(function(row, enc, next) {
     next(null, row);
-  }, 
+  },
   function (cb){
     if (Object.keys(fileLookupTable).length) {
       onEnd(cb);

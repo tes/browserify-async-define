@@ -11,7 +11,7 @@ function wrap(exports, deps, sym, body){
   var out = ["var asyncDefine = require('async-define');"];
   out.push("asyncDefine(" + s + d + "function (" + a + "){" );
   out.push(body);
-  if (sym){  
+  if (sym){
     out.push("return module.exports;");
   }
   out.push("});");
@@ -47,18 +47,21 @@ var wrapTransform = transformTools.makeStringTransform("browserify-async-define-
     delete o.removedDependenciesOnCurrentFile;
     var file = transformOptions.file;
 
+    if (file.indexOf('asyncDefine.js') !== -1) {
+      done(null, content);
+    }
+
     var output = (deps.deps.length > 0 || file in exports) ? wrap(exports, deps, exports[file], content) : content
 
     done(null, output);
 });
 
-var requireTransform = transformTools.makeRequireTransform("browserify-async-define-2", 
+var requireTransform = transformTools.makeRequireTransform("browserify-async-define-2",
   {evaluateArguments: true},
   function(args, transformOptions, done) {
     var o = transformOptions.config;
     var depsObj = o.depsObj;
     var first_segment = args[0].split('/')[0];
-
     if (first_segment in depsObj){
       transformOptions.config.verbose && console.log('factored out: ', args[0]);
       if (first_segment !== args[0]){
