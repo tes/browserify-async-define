@@ -14,7 +14,15 @@ var $node = $('<div>Hello</div>').appendTo(document.body);
 ```
 You can build bundle and main like this:
 ```
-browserify main.js -o dist/main.js -p [browserify-async-define -d jquery:jquery:dist/common.js]
+browserify main.js -o dist/main.js -p [browserify-async-define -d jquery:jquery2.2:dist/common.js]
+```
+or using the api:
+```
+var browserifyAsyncDefine = require('browserify-async-define');
+var b = browserify('main.js')
+  .plugin(browserifyAsyncDefine, {
+    dependsOn: ['jquery:jquery2.2:dist/common.js]
+  });
 ```
 
 and then load them like this:
