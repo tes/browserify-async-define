@@ -3,7 +3,7 @@ browserify-async-define
 This browserify plugin can be used to wrap some dependencies using async-define and thus, factor out those in common bundles.
 
 Options:
-*  -d --dependsOn "name:label:filename" the dependency "name" will come from a different bundle with the label "label". If you add "filename" (optional) this dependency will be bundled in that file.
+*  -d --dependsOn "name:label[:filename]" the dependency "name" will come from a different bundle with the label "label". If you add "filename" (optional) this dependency will be bundled in that file.
 *  -e --exports "file:label" the module.exports of this file will be exposed with the label "label"
 *  --verbose it will output which modules was removed and which stays. Useful to detect if a module is in because of a dependency of a dependency
 
