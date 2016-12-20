@@ -42,4 +42,11 @@ and then load them like this:
 <script async src="dist/main.js"></script>
 ```
 
-async-define will isolate the namespace and allow to use different versions of a package. 
+async-define will isolate the namespace and allow to use different versions of a package.
+
+peerDependencies
+================
+To use this plugin you should also install this package:
+```
+"async-define": "^3.0.1",
+```
