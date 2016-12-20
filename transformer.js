@@ -57,7 +57,7 @@ var wrapTransform = transformTools.makeStringTransform("browserify-async-define-
 });
 
 var requireTransform = transformTools.makeRequireTransform("browserify-async-define-2",
-  {evaluateArguments: true},
+  {evaluateArguments: true, excludeExtensions: [".json"]},
   function(args, transformOptions, done) {
     var o = transformOptions.config;
     var depsObj = o.depsObj;
