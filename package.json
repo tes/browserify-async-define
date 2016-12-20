@@ -7,7 +7,10 @@
     "build-main": "browserify demo/main/main.js -o demo/dist/main.js -p [./index.js -d jquery:jquery20:demo/dist/jquery.js -d react:react014:demo/dist/react.js -d react-dom:reactDom014:demo/dist/react.js --verbose]",
     "build-bundle": "browserify demo/bundle/jquery.js -o demo/dist/jquerytest.js -p [./index.js -e demo/bundle/jquery.js:jquery --verbose]",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "serve": "http-server -p 9090 demo"
+    "serve": "http-server -p 9090 demo",
+    "release:major": "./node_modules/.bin/npm-release major",
+    "release:minor": "./node_modules/.bin/npm-release minor",
+    "release:patch": "./node_modules/.bin/npm-release patch"
   },
   "keywords": [],
   "author": "Maurizio Lupo <maurizio.lupo@gmail.com>",
@@ -19,7 +22,8 @@
     "jquery": "^2.1.4",
     "react": "^0.14.5",
     "async-define": "^3.0.1",
-    "react-dom": "^0.14.5"
+    "react-dom": "^0.14.5",
+    "npm-release": "^1.0.0"
   },
   "peerDependencies": {
     "async-define": "^3.0.1"
