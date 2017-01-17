@@ -8,8 +8,7 @@ function wrap(exports, deps, sym, body){
   var d = '[' + deps.deps.map(quote).join(',') + '],';
   var a = deps.args.join(',');
   var s = sym ? quote(sym) + "," : "";
-  var out = ["var asyncDefine = require('async-define');"];
-  out.push("asyncDefine(" + s + d + "function (" + a + "){" );
+  var out = ["require('async-define')(" + s + d + "function (" + a + "){"];
   out.push(body);
   if (sym){
     out.push("return module.exports;");

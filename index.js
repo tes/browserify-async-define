@@ -77,11 +77,11 @@ function deps2Bundle(d){
   var defines = d.map(function (t){
     var label = t[1];
     var name = t[0];
-    return "asyncDefine(" + quote(label) + ", function(){return " + mangleName(name) + ";});"
+    return "require('async-define')(" + quote(label) + ", function(){return " + mangleName(name) + ";});"
   })
   .join('\n');
 
-  return ["var asyncDefine = require('async-define');", requires, defines].join('\n');
+  return [requires, defines].join('\n');
 }
 
 function fileMap2Bundles(m){
