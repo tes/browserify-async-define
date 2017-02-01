@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build-main": "browserify demo/main/main.js -o demo/dist/main.js -p [./index.js -d jquery:jquery20:demo/dist/jquery.js -d react:react014:demo/dist/react.js -d react-dom:reactDom014:demo/dist/react.js --verbose]",
-    "build-bundle": "browserify demo/bundle/jquery.js -o demo/dist/jquerytest.js -p [./index.js -e demo/bundle/jquery.js:jquery --verbose]",
+    "build-bundle": "browserify demo/bundle/jquery.js -o demo/dist/jquery.js -p [./index.js -e demo/bundle/jquery.js:jquery --verbose]",
     "test": "echo \"Error: no test specified\" && exit 1",
     "serve": "http-server -p 9090 demo",
     "release:major": "./node_modules/.bin/npm-release major",
@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "browserify-transform-tools": "^1.5.0",
+    "bundle-collapser": "^1.2.1",
     "mkdirp": "^0.5.1",
     "temp": "^0.8.3",
     "through2": "^2.0.0"
