@@ -189,7 +189,9 @@ module.exports = function (b, opts) {
         return;
       }
       var b = browserify(f, {basedir: process.cwd(), paths: ['./node_modules']});
-      b.plugin(bundleCollapser);
+      if(opts.collapse) {
+        b.plugin(bundleCollapser);
+      }
       var writableStream = fs.createWriteStream(bundlePath);
       mkdirp.sync(path.dirname(bundlePath));
       b.bundle().pipe(writableStream);
@@ -213,5 +215,7 @@ module.exports = function (b, opts) {
       cb();
     }
   }));
-  b.plugin(bundleCollapser);
+  if(opts.collapse) {
+    b.plugin(bundleCollapser);
+  }
 }

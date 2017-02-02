@@ -6,6 +6,7 @@ Options:
 *  -d --dependsOn "name:label[:filename]" the dependency "name" will come from a different bundle with the label "label". If you add "filename" (optional) this dependency will be bundled in that file.
 *  -e --exports "file:label" the module.exports of this file will be exposed with the label "label"
 *  --verbose it will output which modules was removed and which stays. Useful to detect if a module is in because of a dependency of a dependency
+* --collapse the requires ids are transformed in numbers instead of strings (more compact bundles)
 
 With the main.js:
 ```js
