@@ -21,14 +21,12 @@
     "http-server": "^0.8.5",
     "jquery": "^2.1.4",
     "react": "^0.14.5",
-    "async-define": "^3.0.3",
+    "async-define": "^3.0.4",
     "react-dom": "^0.14.5",
     "npm-release": "^1.0.0"
   },
-  "peerDependencies": {
-    "async-define": "^3.0.3"
-  },
   "dependencies": {
+    "async-define": "^3.0.4",
     "browserify-transform-tools": "^1.5.0",
     "bundle-collapser": "^1.2.1",
     "mkdirp": "^0.5.1",

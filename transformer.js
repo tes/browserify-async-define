@@ -3,13 +3,13 @@ var transformTools = require('browserify-transform-tools');
 var utils = require('./utilities');
 var quote = utils.quote;
 var mangleName = utils.mangleName;
-var adPathName = require.resolve('async-define');
+var adModName = '_d';
 
 function wrap(exports, deps, sym, body){
   var d = '[' + deps.deps.map(quote).join(',') + '],';
   var a = deps.args.join(',');
   var s = sym ? quote(sym) + "," : "";
-  var out = ["require('" + adPathName + "')(" + s + d + "function (" + a + "){"];
+  var out = ["require('" + adModName + "')(" + s + d + "function(" + a + "){"];
   out.push(body);
   if (sym){
     out.push("return module.exports;");
