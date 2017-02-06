@@ -10,7 +10,6 @@ var quote = utils.quote;
 var mangleName = utils.mangleName;
 var bundleCollapser = require('bundle-collapser/plugin');
 var adPathName = require.resolve('async-define');
-var adModName = '_d';
 
 temp.track(); // remove temp files
 
@@ -80,7 +79,7 @@ function deps2Bundle(d){
   var defines = d.map(function (t){
     var label = t[1];
     var name = t[0];
-    return "require('" + adModName + "')(" + quote(label) + ", function(){return " + mangleName(name) + ";});"
+    return "require('" + adPathName + "')(" + quote(label) + ", function(){return " + mangleName(name) + ";});"
   })
   .join('\n');
 
@@ -142,8 +141,6 @@ module.exports = function (b, opts) {
   var removedDependencies = {};
   var removedDependenciesOnCurrentFile = {};
 
-  b.require(adPathName, { expose: adModName });
-
   b.transform(transformer.requireTransform, {
     verbose: !!opts.verbose,
     depsObj: depsObj,
@@ -190,7 +187,7 @@ module.exports = function (b, opts) {
         return;
       }
       var b = browserify(f, {basedir: process.cwd(), paths: ['./node_modules']});
-      b.require(adPathName, { expose: adModName });
+
       if(opts.collapse) {
         b.plugin(bundleCollapser);
       }
