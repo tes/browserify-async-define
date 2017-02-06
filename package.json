@@ -1,6 +1,6 @@
 {
   "name": "browserify-async-define",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "description": "Browserify plugin for async-define",
   "main": "index.js",
   "scripts": {
