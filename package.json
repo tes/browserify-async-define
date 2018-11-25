@@ -7,26 +7,21 @@
     "build-main": "browserify demo/main/main.js -o demo/dist/main.js -p [./index.js -d jquery:jquery20:demo/dist/jquery.js -d react:react014:demo/dist/react.js -d react-dom:reactDom014:demo/dist/react.js --verbose]",
     "build-bundle": "browserify demo/bundle/jquery.js -o demo/dist/jquery.js -p [./index.js -e demo/bundle/jquery.js:jquery --verbose]",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "serve": "http-server -p 9090 demo",
-    "release:major": "./node_modules/.bin/npm-release major",
-    "release:minor": "./node_modules/.bin/npm-release minor",
-    "release:patch": "./node_modules/.bin/npm-release patch"
+    "serve": "http-server -p 9090 demo"
   },
   "keywords": [],
   "author": "Maurizio Lupo <maurizio.lupo@gmail.com>",
   "license": "MIT",
   "repository": "git@github.com:tes/browserify-async-define.git",
   "devDependencies": {
-    "async-define": "^3.0.4",
     "browserify": "^12.0.1",
     "http-server": "^0.11.1",
     "jquery": "^3.3.1",
-    "npm-release": "^1.0.0",
     "react": "^0.14.5",
     "react-dom": "^0.14.5"
   },
   "dependencies": {
-    "async-define": "^3.0.4",
+    "async-define": "^3.2.1",
     "browserify-transform-tools": "^1.5.0",
     "bundle-collapser": "^1.2.1",
     "mkdirp": "^0.5.1",

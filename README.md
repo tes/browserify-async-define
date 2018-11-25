@@ -1,3 +1,7 @@
+**Note: This is working and battle tested, but I suggest to use either webpack or rollup instead (I explain the reason at the bottom)**
+* [webpack plugin](https://github.com/tes/webpack-async-define)
+* [rollup plugin](https://github.com/tes/rollup-plugin-async-define)
+
 browserify-async-define
 =======================
 This browserify plugin can be used to wrap some dependencies using async-define and thus, factor out those in common bundles.
@@ -49,5 +53,9 @@ peerDependencies
 ================
 To use this plugin you should also install this package:
 ```
-"async-define": "^3.0.1",
+"async-define": "latest",
 ```
+
+Why avoiding this
+-----------------
+async-define has the same interface used by AMD modules. So it was very easy to create a rollup or webpack plugin because they are already able to produce an AMD output of the bundle. This plugin instead is pretty complicated and heavy to maintain. I consider this to be **deprecated** and only apply the least possible maintenance.
